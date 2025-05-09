@@ -1,57 +1,39 @@
-const upload = document.getElementById('image-upload');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const uploadedImage = document.getElementById('uploadedImage'); // Optional preview image
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: center;
+}
 
-upload.addEventListener('change', async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
+.container {
+  padding: 20px;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+}
 
-  // Optional image preview
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    uploadedImage.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+h1 {
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
 
-  const img = new Image();
-  img.onload = async () => {
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
+#canvas {
+  width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  margin-top: 20px;
+}
 
-    const formData = new FormData();
-    formData.append('image', file);
+input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+}
 
-    try {
-      const response = await fetch('https://monopolygo-bankheist-predictor.onrender.com', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) throw new Error('Prediction failed');
-
-      const result = await response.json();
-      highlightTiles(result.opened, 'green');
-      highlightTiles(result.predicted, 'yellow');
-    } catch (err) {
-      console.error('Error during prediction:', err);
-      alert('Failed to get prediction. Please try again.');
-    }
-  };
-
-  img.src = URL.createObjectURL(file);
-});
-
-function highlightTiles(indices, color) {
-  const tileW = canvas.width / 4;
-  const tileH = canvas.height / 3;
-
-  indices.forEach(index => {
-    const row = Math.floor(index / 4);
-    const col = index % 4;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(col * tileW, row * tileH, tileW, tileH);
-  });
+#status-message {
+  text-align: center;
+  margin-top: 15px;
+  color: #444;
 }
