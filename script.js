@@ -1,10 +1,18 @@
 const upload = document.getElementById('image-upload');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const uploadedImage = document.getElementById('uploadedImage'); // Optional preview image
 
 upload.addEventListener('change', async (event) => {
   const file = event.target.files[0];
   if (!file) return;
+
+  // Optional image preview
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    uploadedImage.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 
   const img = new Image();
   img.onload = async () => {
@@ -15,15 +23,23 @@ upload.addEventListener('change', async (event) => {
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch('https://monopolygo-bankheist-predictor.onrender.com', {
-      method: 'POST',
-      body: formData
-    });
+    try {
+      const response = await fetch('https://monopolygo-bankheist-predictor.onrender.com', {
+        method: 'POST',
+        body: formData
+      });
 
-    const result = await response.json();
-    highlightTiles(result.opened, 'green');
-    highlightTiles(result.predicted, 'yellow');
+      if (!response.ok) throw new Error('Prediction failed');
+
+      const result = await response.json();
+      highlightTiles(result.opened, 'green');
+      highlightTiles(result.predicted, 'yellow');
+    } catch (err) {
+      console.error('Error during prediction:', err);
+      alert('Failed to get prediction. Please try again.');
+    }
   };
+
   img.src = URL.createObjectURL(file);
 });
 
