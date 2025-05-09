@@ -15,7 +15,7 @@ upload.addEventListener('change', async (event) => {
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await fetch('https://your-backend-url.onrender.com/detect', {
+    const response = await fetch('https://monopolygo-bankheist-predictor.onrender.com', {
       method: 'POST',
       body: formData
     });
