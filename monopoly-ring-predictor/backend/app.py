@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
 from PIL import Image
 import numpy as np
-import cv2
+import cv2 import uvicorn
+
 
 app = Flask(__name__)
 
@@ -34,5 +35,7 @@ def predict_rings(opened_tiles):
     key = frozenset(opened_tiles)
     return patterns.get(key, [i for i in range(12) if i not in opened_tiles][:3])
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+import uvicorn
+
+if __name__ == "__main__":
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=10000)
