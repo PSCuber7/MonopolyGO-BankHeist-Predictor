@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monopoly GO Image Labeling Tool</title>
+    <style>
+        #image-container {
+            position: relative;
+            display: inline-block;
+        }
+        .tile {
+            position: absolute;
+            border: 2px solid transparent;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .tile.selected {
+            background-color: rgba(0, 255, 0, 0.3); /* Green for opened */
+        }
+        .tile.ring {
+            background-color: rgba(255, 0, 0, 0.3); /* Red for ring */
+        }
+    </style>
+</head>
+<body>
+    <h1>Label Monopoly GO Screenshot</h1>
+    <input type="file" id="image-upload" accept="image/*" onchange="loadImage(event)">
+    <br><br>
+    <div id="image-container">
+        <img id="image" style="max-width: 100%;" />
+        <div id="grid-overlay"></div>
+    </div>
+    <button onclick="submitLabels()">Submit Labels</button>
+
+    <script>
+        let uploadedImage = null;
+        const grid = [];
+        
+        function loadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImage = new Image();
+                uploadedImage.onload = () => {
+                    document.getElementById('image').src = e.target.result;
+                    drawGrid();
+                };
+                uploadedImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function drawGrid() {
+            const container = document.getElementById('image-container');
+            const numCols = 4;
+            const numRows = 3;
+            const imgWidth = uploadedImage.width;
+            const imgHeight = uploadedImage.height;
+
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.style.left = `${(col / numCols) * imgWidth}px`;
+                    tile.style.top = `${(row / numRows) * imgHeight}px`;
+                    tile.style.width = `${imgWidth / numCols}px`;
+                    tile.style.height = `${imgHeight / numRows}px`;
+
+                    tile.addEventListener('click', function() {
+                        toggleTileState(tile);
+                    });
+
+                    grid.push({tile: tile, row: row, col: col, state: null});
+                    document.getElementById('grid-overlay').appendChild(tile);
+                }
+            }
+        }
+
+        function toggleTileState(tile) {
+            const index = grid.findIndex(g => g.tile === tile);
+            if (grid[index].state === null) {
+                tile.classList.add('selected');
+                grid[index].state = 'opened';
+            } else if (grid[index].state === 'opened') {
+                tile.classList.remove('selected');
+                tile.classList.add('ring');
+                grid[index].state = 'ring';
+            } else {
+                tile.classList.remove('ring');
+                grid[index].state = null;
+            }
+        }
+
+        function submitLabels() {
+            const labels = grid.map(g => ({row: g.row, col: g.col, state: g.state}));
+            console.log("Labels to submit:", labels);
+
+            // Send data to backend here
+            fetch('https://your-backend-url.com/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({labels: labels})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Labels submitted:', data);
+            })
+            .catch(error => {
+                console.error('Error submitting labels:', error);
+            });
+        }
+    </script>
+</body>
+</html>
