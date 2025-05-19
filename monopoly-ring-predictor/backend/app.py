@@ -7,9 +7,9 @@ app = Flask(__name__)
 UPLOAD_FOLDER = "label_data"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html")
+    return render_template("index.html")  # or send_file('templates/index.html')
 
 @app.route("/submit_labels", methods=["POST"])
 def submit_labels():
