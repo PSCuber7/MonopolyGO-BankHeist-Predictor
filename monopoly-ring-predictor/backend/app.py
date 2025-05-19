@@ -15,7 +15,7 @@ def index():
 def submit_labels():
     labels = request.form.get("labels")
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = os.path.join(UPLOAD_FOLDER, f"labels_{timestamp}.json")
+    filename = os.path.join("label_data", f"labels_{timestamp}.json")
     with open(filename, "w") as f:
         json.dump({"labels": json.loads(labels)}, f)
-    return "Labels saved successfully!"
+    return "Labels saved!"
